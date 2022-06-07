@@ -1,0 +1,27 @@
+{
+    "name": "neznaykas/farpost_test",
+    "description": "Test Farpost PHP Package",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Farpost\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "sergey.snopko",
+            "email": "sergey.snopko@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0"
+        
+    },
+    "require-dev": {
+        "psr/http-message": "^1.0",
+        "phpunit/phpunit": "^9"
+    },
+    "scripts": {
+        "test": "phpunit tests --colors=always"
+    }
+}

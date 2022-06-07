@@ -1,0 +1,33 @@
+version: '3.0'
+
+services:
+    nginx:
+        image: nginx
+        restart: always
+        environment:
+            - VIRTUAL_HOST=site.local
+        depends_on:
+            - php
+        networks:
+            - backend
+        volumes:
+            - ./nginx/default.nginx:/etc/nginx/conf.d/default.conf
+            - ./:/var/www/html/
+        ports:
+            - 80:80
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: test_app
+        container_name: testapp
+        restart: always
+        volumes:
+            - ./:/var/www/html/
+        networks:
+            - backend
+        tty: true
+
+networks:
+    backend:
+    
