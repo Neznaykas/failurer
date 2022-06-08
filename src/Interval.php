@@ -2,13 +2,13 @@
 
 namespace Farpost;
 
-class Intervals
+class Interval
 {
     public $start; //H:i:s
     public $end; //H:i:s
     public $uptime; //0 - 100%
 
-    function __construct(string $start, string $end, int $uptime) 
+    function __construct(string $start, string $end, float $uptime) 
     {
         $this->start = $start;
         $this->end = $end;

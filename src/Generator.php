@@ -9,10 +9,8 @@ use DateTime;
 class Generator
 {
     //Simple generate logs - for tests
-
     public function __construct($filename, $count)
     {
-        $time_start = microtime(true);
         //a - end, w - rewrite
         $handle = fopen($filename, "w") or die("Файл не найден");
 
@@ -24,8 +22,8 @@ class Generator
                 $status = 200;
                 $type = 'GET';
 
-                if (rand(1, 10) == 1)
-                    $status = rand(500, 599);
+               // if (rand(1, 100) == 1)
+               //     $status = rand(500, 599);
 
                 $timestart += rand(1, 60);
 
@@ -46,9 +44,5 @@ class Generator
             }
             fclose($handle);
         }
-
-        $time_end = microtime(true);
-        $execution_time = ($time_end - $time_start);
-        echo '<b>Total Execution Time:</b> ' . $execution_time . '<br><br>';
     }
 }

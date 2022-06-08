@@ -2,18 +2,16 @@
 
 namespace Farpost;
 
-//создать обьект для хранения лога? (как структуру)
-//use Farpost\Log;
 use DateTime;
 
 class Logger
 {
-    private $logs;
+    public $intervals;
     private $uptime;
 
     public function __construct($file, $needed_uptime, $timeout)
     {
-        $this->logs = [];
+        $this->intervals = [];
         $this->uptime = $needed_uptime;
 
         $start = 0;
@@ -30,15 +28,15 @@ class Logger
                 $duration = $buffer[10];
                 $status = $buffer[8];
 
-                if ($duration <= $timeout && $status == 200 && $errors > 0) {
+                if ($duration <= $timeout && $status == 200 && $errors > 0) { //? Interval size
                     //Y:m:d H:i:s
-                    $time = number_format(((($count - $errors) * 100) / $count), 1);
+                    $time = number_format((($count - $errors) * 100) / $count, 1);
 
                     if ($this->uptime > $time) {
                         //echo date('H:i:s', $start) . ' - ' . date('H:i:s', $date) . ' | ' . $time . '%<br>';
 
                         //$this->logs[] = gzencode(json_encode(new Intervals($start, $date, $time)));
-                        $this->logs[] = new Intervals($start, $date, $time);
+                        $this->intervals[] = new Interval($start, $date, $time);
                     }
 
                     $count = 0;
@@ -49,6 +47,7 @@ class Logger
                     if ($errors == 0) {
                         $start = $date;
                         $errors = 1;
+                        //$count = 0;
                     } else
                         $errors++;
                 }
@@ -56,28 +55,37 @@ class Logger
                 $count++;
                 unset($buffer);
             }
+
+            if ($errors > 0) {
+                $time = number_format((($count - $errors) * 100) / $count, 1);
+
+                if ($this->uptime > $time) {
+                    $this->intervals[] = new Interval($start, $date, $time);
+                }
+            }
+
             fclose($handle);
         }
     }
 
-    public function sort()
+    public function sort(bool $increase = true)
     {
-        usort($this->logs, function ($a, $b) {
-
-            //$start = json_decode(gzdecode($a), false);
-            //$start2 = json_decode(gzdecode($b), false);
-
-            return $a->end > $b->end;
-        });
+        if ($increase)
+            usort($this->intervals, function ($a, $b) {
+                return $a->end > $b->end;
+            });
+        else
+            usort($this->intervals, function ($a, $b) {
+                return $a->end <=> $b->end;
+            });
 
         return $this;
     }
 
-    public function run()
+    public function print()
     {
-        foreach ($this->logs as $log) {
-           // $log = json_decode(gzdecode($log), false);
-            echo date('d H:i:s', $log->start) . ' - ' . date('H:i:s', $log->end) . ' | ' . $log->uptime . '%<br>';
+        foreach ($this->intervals as $interval) {
+            echo date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . $interval->uptime . '<br>';
         }
     }
 }

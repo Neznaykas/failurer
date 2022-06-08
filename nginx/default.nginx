@@ -1,12 +1,24 @@
+map $time_iso8601 $my_time {
+    ~^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+)  "$3/$2/$1:$4";
+}
+
+map $msec $millisec {
+     ~\.([0-9]+)$ $1;
+   }
+
+log_format other '$remote_addr - $remote_user [$my_time +$millisec] '
+                '"$request" $status $connection $request_time $body_bytes_sent'
+                '"$http_x_forwarded_for" "$http_referer" "$connection_requests" "$gzip_ratio"';
+
 server {
         listen 80;
         server_name site.local;
         server_name_in_redirect off;
 
-	    client_max_body_size 32M;
-	    client_body_buffer_size 16k;
+	client_max_body_size 32M;
+	client_body_buffer_size 16k;
 
-        access_log /var/log/nginx/localhost.access_log;
+        access_log /var/log/nginx/localhost.access_log other;
         error_log /var/log/nginx/localhost.error_log info;
 
         # root PATH_ON_SERVER;
