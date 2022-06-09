@@ -2,13 +2,13 @@
 
 <p># Run</p>
 <p>1. docker-compose up -d; docker-compose exec php composer install</p>
-<p>2. Open <a href="localhost">localhost</a> in browser</p>
+<p>2. Open <a href="#localhost">localhost</a> in browser</p>
 <p>In console mod cat access.log | php index.php -u 99.9 -t 45</p>
 
 <p># Dev Tests</p>
 <p># docker-compose exec php composer test</p>
-<br><br>
-/////////////////////////////////////////
+<br>
+/////////////////////////////////////////<br>
 Тестовое задание:
 Имеется access-лог web-сервера. Файл со следующей структурой.
 192.168.32.181 - - [14/06/2017:16:47:02 +1000] "PUT /rest/v1.4/documents?zone=default&_rid=6076537c HTTP/1.1" 200 2 44.510983 "-" "@list-item-updater" prio:0
