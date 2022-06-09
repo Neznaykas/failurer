@@ -22,6 +22,6 @@
         "phpunit/phpunit": "^9"
     },
     "scripts": {
-        "test": "phpunit tests --colors=always"
+        "test": "phpunit tests --colors=always --coverage-html=coverage --whitelist 'src/'"
     }
 }

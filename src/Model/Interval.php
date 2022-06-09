@@ -1,6 +1,6 @@
 <?php
 
-namespace Farpost;
+namespace Farpost\Model;
 
 class Interval
 {

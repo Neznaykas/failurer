@@ -4,7 +4,7 @@ LABEL maintainer="Sergey Snopko"
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . .
 
-ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=www-data --with-fpm-group=www-data 
+ENV XDEBUG_MODE=coverage
 
 #for Dev
 RUN apt-get update && apt-get install -y \
@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     sudo \
     unzip
+
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
 
 WORKDIR /var/www/html/
 

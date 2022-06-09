@@ -1,59 +1,59 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Farpost\Logger;
 
-class ExampleApiTest extends TestCase
+use Farpost\Logger;
+use Farpost\Generator;
+
+class LoggerTest extends TestCase
 {
     private $logs;
+    private $logfile;
 
     public function setUp(): void
     {
         //нагенерируем немного логов
-        $logfile = __DIR__ . '/access.log';
-        new Generator($logfile, 150);
+        $this->logfile = __DIR__ . '/access.log';
+        new Generator($this->logfile, 150, 100);
 
-        $this->logs = new Logger($logfile, 100, 30);
+        $this->logs = new Logger($this->logfile, 100, 30);
     }
 
-    public function tearDown(): void {
+    public function tearDown(): void 
+    {
         $this->logs = null;
+        unlink($this->logfile);
     }
 
-    public function testGetComments()
+    public function testNoAccess() 
     {
-        //403 Forbidden 
-        //$this->assertEquals(403, $this->client->getStatusCode());
-
-        //$this->assertNotEmpty($response);
+        $this->assertEquals(null, new Generator('', 150, 100));
     }
 
-    public function testAddComment()
+    public function testProcess() 
     {
-        $params = [
-            'message' => 'qwest',
-            'owner' => '60d0fe4f5311236168a109d0',
-            'post' => '60d21b7967d0d8992e610d1b'
-        ];
+        $logger = $this->getMockBuilder(Logger::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        //$response = $this->client->addComment($params);
-
-        //200 OK
-        //$this->assertEquals(200, $this->client->getStatusCode());
-      // $this->assertNotEmpty($response);
+        $this->assertInstanceOf(Logger::class, $logger);
     }
 
-    public function testUpdateComment()
+    public function testEmpty()
     {
-       /* $params = ['firstName' => 'qwest'];
+        $this->assertNotEmpty($this->logs->intervals->get());
+    }
 
-        $response = $this->client->updateComment($params);
+    public function test()
+    {
+        $intervals = (new Logger($this->logfile, 95, 60))->intervals->sort()->get();
 
-        //$this->assertEquals(200, $this->client->getStatusCode());
-        $this->assertNotEmpty($response);
+       // $this->assertEquals(200, $this->client->getStatusCode());
+       
+         $this->assertNotEmpty($intervals);
 
-        $data = json_decode($response, true);
-        $this->assertArrayHasKey('firstName', $data);*/
+       /* $data = json_decode($response, true);
+        $this->assertArrayHasKey('start', $data);*/
     }
 
 }

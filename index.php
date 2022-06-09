@@ -1,58 +1,56 @@
 <?php
 
-ini_set("memory_limit","64M");
+ini_set("memory_limit", "512M");
 ini_set('max_execution_time', 0);
 
 use Farpost\Logger;
 use Farpost\Generator;
 
-use function PHPUnit\Framework\fileExists;
-
 require_once __DIR__ . '/vendor/autoload.php';
 
-function convert($size)
-{
-    $unit=array('b','kb','mb','gb','tb','pb');
-    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '. $unit[$i];
+/* Console mod */
+if (isset($argv)) {
+    $commands = [];
+
+    for ($i = 1; $i < $argc; $i++) {
+        $commands[$i - 1] = $argv[$i];
+    }
+
+    /* cat access.log | php index.php -u 99.9 -t 45 */
+
+    (new Logger("php://stdin", floatval($commands[2]), floatval($commands[3])))->sort()->print();
+} else {
+    /* Interactive: localhost */
+    $time_start = microtime(true);
+
+    $logfile = __DIR__ . '/access.log';
+    $nginx_log = '/var/log/nginx/localhost.access_log';
+
+    if (file_exists($nginx_log)) {
+        /* очень медленно но лог настоящий */
+        if (filesize($nginx_log) < 10000) {
+            if (rand(1, 100) == 1) {
+                header("HTTP/1.1 500 Internal Server Error");
+            } else {
+                header("Refresh:0");
+            }
+        }
+
+        echo '<b>Nginx analyze: </b><br>';
+        (new Logger($nginx_log, 99.9, 1))->sort()->print();
+    }
+
+    echo '<b>Random generate analyze: </b><br>';
+    new Generator($logfile, 100, 100);
+
+    (new Logger($logfile, 95, 60))->print();
+    
+    echo '<b>Items: </b><br>';
+    print_r((new Logger($logfile, 95, 60))->intervals->sort()->get());
+
+    echo '<br><br>';
+
+    $time_end = microtime(true);
+    $execution_time = ($time_end - $time_start);
+    echo '<b>Total Execution Time:</b> ' . $execution_time . '<br><br>';
 }
-
-//50 000 000
-$count = 60;
-
-if (rand(1, 10) == 1)
-    header("HTTP/1.1 500 Internal Server Error");
-
-$logfile = __DIR__ . '/access.log';
-
-echo '<b>Start memory: </b>' . convert(memory_get_usage(true)) . '<br>';
-echo ' <b>Value: </b>' . $count .  '<br>';
-
-$nginx_log = '/var/log/nginx/localhost.access_log';
-
-if (file_exists($nginx_log))
-{
-    echo file_get_contents($nginx_log);
-    (new Logger($nginx_log, 60, 50))->sort()->print();
-} else
-    echo 'Не найден файл логов, nginx - только сгенерированый анализ' . '<br>';
-
-/*$filters = array_fill(0, 3, null);
- 
-for($i = 1; $i < $argc; $i++) {
-    $filters[$i - 1] = $argv[$i];
-}*/
-
-$time_start = microtime(true);
-
-//if ($filters[1])
-//new Generator($logfile, $count);
-
-//new Logger($logfile, 95, 150);
-
-echo '<b>Final memory: </b>' . convert(memory_get_usage(true)) . '<br>';
-
-$time_end = microtime(true);
-$execution_time = ($time_end - $time_start);
-echo '<b>Total Execution Time:</b> ' . $execution_time . '<br><br>';
-
-
