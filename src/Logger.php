@@ -20,7 +20,7 @@ class Logger
         $errors = 0;
         $count = 0;
 
-        $handle = fopen($file, "r") || die("Couldn't get handle");
+        $handle = fopen($file, "r") or die("Couldn't get handle");
 
         if ($handle) {
             while (($buffer = fgets($handle, 4096)) !== false) {
@@ -68,6 +68,15 @@ class Logger
     {
         foreach ($this->intervals->get() as $interval) {
             echo date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . $interval->uptime . '<br>';
+        }
+    }
+
+    public function console() 
+    {
+        foreach ($this->intervals->get() as $interval) {
+            $STDERR = fopen("php://stderr", "w");
+            fwrite($STDERR, "\n". date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . $interval->uptime ."\n\n");
+            fclose($STDERR);
         }
     }
 }

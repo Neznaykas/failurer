@@ -1,11 +1,13 @@
-<h3># Http Client </h3>
+<h3>#Analize fault tolerance for logs nginx</h3>
 
 <p># Run</p>
-<p>docker-compose up -d; docker-compose exec php composer install</p>
+<p>1. docker-compose up -d; docker-compose exec php composer install</p>
+<p>2. Open <a href="localhost">localhost</a> in browser</p>
+<p>In console mod cat access.log | php index.php -u 99.9 -t 45</p>
 
 <p># Dev Tests</p>
 <p># docker-compose exec php composer test</p>
-
+<br><br>
 /////////////////////////////////////////
 Тестовое задание:
 Имеется access-лог web-сервера. Файл со следующей структурой.
