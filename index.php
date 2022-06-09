@@ -16,9 +16,7 @@ if (isset($argv)) {
         $commands[$i - 1] = $argv[$i];
     }
 
-    /* cat access.log | php index.php -u 99.9 -t 45 */
-
-    (new Logger("php://stdin", floatval($commands[2]), floatval($commands[3])))->sort()->print();
+    (new Logger("php://stdin", floatval($commands[2]), floatval($commands[3])))->sort()->console();
 } else {
     /* Interactive: localhost */
     $time_start = microtime(true);
