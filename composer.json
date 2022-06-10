@@ -1,10 +1,10 @@
 {
-    "name": "neznaykas/farpost_test",
-    "description": "Test Farpost PHP Package",
+    "name": "neznaykas/failurer",
+    "description": "Failure analysis on Nginx",
     "type": "library",
     "autoload": {
         "psr-4": {
-            "Farpost\\": "src/"
+            "Failure\\": "src/"
         }
     },
     "authors": [
@@ -18,7 +18,6 @@
         
     },
     "require-dev": {
-        "psr/http-message": "^1.0",
         "phpunit/phpunit": "^9"
     },
     "scripts": {

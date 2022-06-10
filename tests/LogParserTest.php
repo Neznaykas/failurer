@@ -2,12 +2,11 @@
 
 use PHPUnit\Framework\TestCase;
 
-use Farpost\Logger;
-use Farpost\Generator;
+use Failure\LogParser;
+use Failure\Generator;
 
 class LoggerTest extends TestCase
 {
-    private $logs;
     private $logfile;
 
     public function setUp(): void
@@ -15,19 +14,12 @@ class LoggerTest extends TestCase
         //нагенерируем немного логов
         $this->logfile = __DIR__ . '/access.log';
         new Generator($this->logfile, 150, 100);
-
-        $this->logs = new Logger($this->logfile, 100, 30);
     }
 
     public function tearDown(): void 
     {
         $this->logs = null;
         unlink($this->logfile);
-    }
-
-    public function testNoAccess() 
-    {
-        $this->assertEquals(null, new Generator('', 150, 100));
     }
 
     public function testProcess() 
@@ -38,6 +30,19 @@ class LoggerTest extends TestCase
 
         $this->assertInstanceOf(Logger::class, $logger);
     }
+    
+    public function testClassConstructor()
+    {
+        $data = new LogParser($this->logfile, 100, 30);
+    
+        $this->assertSame(30, $data->uptime);
+        $this->assertEmpty($data->intervals);
+    }
+
+    public function testNoAccess() 
+    {
+        $this->assertEquals(null, $this->logs->intervals);
+    }
 
     public function testEmpty()
     {
@@ -46,7 +51,7 @@ class LoggerTest extends TestCase
 
     public function test()
     {
-        $intervals = (new Logger($this->logfile, 95, 60))->intervals->sort()->get();
+        $intervals = (new LogParser($this->logfile, 95, 60))->intervals->sort()->get();
 
        // $this->assertEquals(200, $this->client->getStatusCode());
        

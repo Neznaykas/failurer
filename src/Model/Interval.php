@@ -1,6 +1,6 @@
 <?php
 
-namespace Farpost\Model;
+namespace Failure\Model;
 
 class Interval
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Farpost;
+namespace Failure;
 use DateTime;
 
 class Generator
