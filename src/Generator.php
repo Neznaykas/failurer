@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Failure;
 
-use Exception;
-
 
 class Generator
 {
@@ -14,7 +12,7 @@ class Generator
     {
         //a - end, w - rewrite
         if (!$handle = fopen($filename, "w"))
-            throw new Exception('Файл не найден');
+            throw new \Exception('Ошибка открытия файла, для записи');
 
         $timestart = rand(time() - (7 * 24 * 60 * 60), time());
 
@@ -24,7 +22,7 @@ class Generator
                 $type = 'GET';
 
                 if (rand(1, $errors) == 1)
-                    $status = rand(500, 599);
+                    $status = 500;
 
                 $timestart += rand(1, 60);
 
@@ -39,7 +37,7 @@ class Generator
                 $log .= PHP_EOL;
 
                 if (fwrite($handle, $log) === FALSE) {
-                    throw new Exception('Не могу произвести запись в файл');
+                    throw new \Exception('Не могу произвести запись в файл');
                 }
             }
             fclose($handle);

@@ -4,17 +4,17 @@ use PHPUnit\Framework\TestCase;
 
 use Failure\LogParser;
 use Failure\Generator;
-use PHPUnit\TextUI\TestFileNotFoundException;
+use Failure\Model\Interval;
+use Failure\Model\Intervals;
 
-class LoggerTest extends TestCase
+class LogParserTest extends TestCase
 {
     private $logfile;
 
     public function setUp(): void
     {
-        //нагенерируем немного логов
         $this->logfile = __DIR__ . '/access.log';
-        new Generator($this->logfile, 150, 100);
+        new Generator($this->logfile, 250, 50);
     }
 
     public function tearDown(): void 
@@ -31,22 +31,47 @@ class LoggerTest extends TestCase
 
         $this->assertInstanceOf(Logger::class, $logger);
     }
+
+    public function testGenerate()
+    {
+        unlink($this->logfile);
+
+        new Generator($this->logfile, 250, 50);
+        $this->assertFileExists($this->logfile);
+    }
+
+    public function testSortIntervals()
+    {
+        $sorted = new Intervals();
+        $sorted->add(new Interval(5, 10, 10));
+        $sorted->add(new Interval(4, 9, 10));
+        $sorted->sort();
+
+        $unsort = new Intervals();
+        $unsort->add(new Interval(4, 9, 10));
+        $unsort->add(new Interval(5, 10, 10));
+
+        $this->assertIsArray($sorted->items);
+        $this->assertIsArray($unsort->items);
+        $this->assertEqualsCanonicalizing($sorted, $unsort);
+    }
     
     public function testClassConstructor()
     {
         $data = new LogParser($this->logfile, 100.0, 30);
 
-        $data->sort();
-
-    
+        $this->assertNotEmpty($data);
         $this->assertSame(100.0, $data->uptime);
-        $this->assertEmpty($data->intervals->items);
+        $this->assertIsArray($data->intervals->items);
     }
 
     public function testNotFile()
     {
-        $this->expectException(Exception::class);
-        new Generator('', 150, 100);
+        try {
+            new LogParser('', 100.0, 30);
+        } catch (Exception $e) {
+            $this->assertFileDoesNotExist('Exception', $e);
+        }
     }
 
     public function testNoAccess() 
@@ -54,21 +79,14 @@ class LoggerTest extends TestCase
         $this->assertEquals(null, $this->logs->intervals);
     }
 
-   /* public function testEmpty()
+    public function testPrint() 
     {
-        $this->assertNotEmpty($this->logs->intervals->items);
-    }*/
+        $logs = new LogParser($this->logfile, 100.0, 30);
+        $data = (new Intervals())->add(new Interval(0, 2, 99.0));
+        $logs->intervals->set($data->items);
+        $logs->print();
 
-   /* public function test()
-    {
-       // $intervals = (new LogParser($this->logfile, 95, 60))->intervals->sort()->get();
-
-       // $this->assertEquals(200, $this->client->getStatusCode());
-       
-        // $this->assertNotEmpty($intervals);
-
-       /* $data = json_decode($response, true);
-        $this->assertArrayHasKey('start', $data);*/
-    //}
-
+        $expected = date('H:i:s', $data->get(0)->start) . ' - ' . date('H:i:s', $data->get(0)->end) . ' | ' . number_format($data->get(0)->uptime, 1) . PHP_EOL;
+        $this->expectOutputString($expected);
+    }
 }

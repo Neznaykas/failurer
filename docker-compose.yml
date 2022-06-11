@@ -25,6 +25,10 @@ services:
         restart: always
         volumes:
             - ./log/nginx:/var/log/nginx
+            - ./src:/var/www/html/src
+            - ./tests:/var/www/html/tests
+            - ./coverage:/var/www/html/coverage
+            - ./index.php:/var/www/html/index.php
         networks:
             - backend
         tty: true

@@ -25,7 +25,7 @@ class LogParser
         $errors = 0;
         $count = 0;
 
-        $handle = fopen($file, "r") or die("Couldn't get handle");
+        $handle = fopen($file, "r");
 
         if ($handle) {
             while (($buffer = fgets($handle, 4096)) !== false) {
@@ -35,25 +35,26 @@ class LogParser
                 $request_time = $buffer[10];
                 $status = $buffer[8];
 
-                if ($start_date == 0)
-                    $start_date = $date;
-
                 if (($status > 499 && $status < 600) || $request_time >= $timeout) {
                     $errors++;
                     $this->errors++;
-                } else {
-                    if ($count > 0 && $errors > 0) {
-                        $uptime = number_format((($count - $errors) * 100) / $count, 1);
-                        if ($uptime < $this->uptime)
-                            if ($this->analize($start_date, $date, $count, $errors)); {
-                            $start_date = 0;
-                            $count = 0;
-                            $errors = 0;
-                        }
+
+                    if ($start_date == 0)
+                        $start_date = $date;
+
+                    if ($count == 0)
+                        $count++;
+                    else
+                        if ($this->analize($start_date, $date, $count, $errors)) {
+                        $start_date = 0;
+                        $count = 0;
+                        $errors = 0;
                     }
                 }
 
-                $count++;
+                if ($count > 0)
+                    $count++;
+
                 $this->count++;
                 unset($buffer);
             }
@@ -61,43 +62,29 @@ class LogParser
             if ($errors > 0) {
                 $this->analize($start_date, $date, $count, $errors);
             }
-
             fclose($handle);
-        }
+        } else
+            throw new \Exception('Не удалось открыть файл');
+
+        $this->intervals->sort();
     }
 
     private function analize($start, $end, $count, $errors)
     {
         $uptime = (($count - $errors) * 100) / $count;
+        //&& abs($end - $start) > 60 * 1
 
-        if ($uptime < $this->uptime) {
+        if ($uptime <= $this->uptime) {
             $this->intervals->add(new Interval($start, $end, $uptime));
             return true;
         } else
             return false;
     }
 
-    public function sort()
-    {
-        usort($this->intervals->items, function ($a, $b) {
-            return $a->end > $b->end;
-        });
-        return $this;
-    }
-
-    public function print()
+    public function print(string $delimetr = PHP_EOL)
     {
         foreach ($this->intervals->items as $interval) {
-            echo date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . number_format($interval->uptime, 1) . '<br>';
-        }
-    }
-
-    public function console()
-    {
-        foreach ($this->intervals->items as $interval) {
-            $stderr = fopen("php://stderr", "w");
-            fwrite($stderr, "\n" . date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . number_format($interval->uptime, 1) . "\n");
-            fclose($stderr);
+            echo date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . number_format($interval->uptime, 1) . $delimetr;
         }
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 declare(strict_types=1);
 
@@ -18,16 +18,23 @@ if (isset($argv)) {
         $commands[$i - 1] = $argv[$i];
     }
 
-    (new LogParser("php://stdin", floatval($commands[1]), floatval($commands[3])))->sort()->console();
+    try {
+        (new LogParser("php://stdin", floatval($commands[1]), floatval($commands[3])))->print();
+    } catch (\Throwable $th) {
+        echo $th->getMessage();
+    }
+
 } else {
     /* Interactive: localhost */
     $time_start = microtime(true);
+
+    echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <div class="container">';
 
     $logfile = __DIR__ . '/access.log';
     $nginx_log = '/var/log/nginx/localhost.access_log';
 
     if (file_exists($nginx_log)) {
-        /* очень медленно но лог настоящий */
         if (filesize($nginx_log) < 10000) {
             if (rand(1, 25) == 1) {
                 header("HTTP/1.1 500 Internal Server Error");
@@ -39,25 +46,23 @@ if (isset($argv)) {
 
         echo '<b>Nginx analyze: </b><br>';
         $logs = new LogParser($nginx_log, 100.0, 1.0);
-        echo 'Count: ' . $logs->count . ' Errors: ' . $logs->errors . '<br>';
+        echo 'Count: ' . $logs->count . ' Errors: ' . $logs->errors . ' Intervals: ' . count($logs->intervals->items) . '<br><hr>';
 
-        $logs->sort()->print();
+        $logs->print('<br>');
+
+        //echo file_get_contents($nginx_log);
     }
 
-    echo '<b>Random generate analyze: </b><br>';
-     new Generator($logfile, 230, 100);
+    echo '<hr><b>Random generate analyze: </b><br>';
+    new Generator($logfile, 2300, 100);
 
-    $logs = new LogParser($logfile, 100.0, 60.0);
+    $logs = new LogParser($logfile, 99.9, 100);
     echo 'Count: ' . $logs->count . ' Errors: ' . $logs->errors . '<br>';
 
-    $logs->sort()->print();
-
-    echo '<b>Items: </b><br>';
-    print_r((new LogParser($logfile, 95.0, 60.0))->intervals->items);
-
-    echo '<br><br>';
+    $logs->print('<br>');
 
     $time_end = microtime(true);
     $execution_time = ($time_end - $time_start);
-    echo '<b>Total Execution Time:</b> ' . $execution_time . '<br><br>';
+    echo '<hr><b>Total Execution Time:</b> ' . $execution_time;
+    echo '<br><br></div></html>';
 }
