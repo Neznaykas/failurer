@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 ini_set("memory_limit", "512M");
-ini_set('max_execution_time', 0);
+ini_set('max_execution_time', '0');
 
 use Failure\LogParser;
 use Failure\Generator;
@@ -36,26 +38,24 @@ if (isset($argv)) {
         }
 
         echo '<b>Nginx analyze: </b><br>';
-        $logs = new LogParser($nginx_log, 100, 1);
-
+        $logs = new LogParser($nginx_log, 100.0, 1.0);
         echo 'Count: ' . $logs->count . ' Errors: ' . $logs->errors . '<br>';
-        
-        (new LogParser($nginx_log, 100, 1))->sort()->print();
+
+        $logs->sort()->print();
     }
 
     echo '<b>Random generate analyze: </b><br>';
-    //new Generator($logfile, 30, 100);
+     new Generator($logfile, 230, 100);
 
-    $logs = new LogParser($logfile, 99, 60);
-    $logs->intervals->sort();
-    $logs->print();
-
+    $logs = new LogParser($logfile, 100.0, 60.0);
     echo 'Count: ' . $logs->count . ' Errors: ' . $logs->errors . '<br>';
 
-    /*echo '<b>Items: </b><br>';
-    print_r((new LogParser($logfile, 95, 60))->intervals->sort()->get());
+    $logs->sort()->print();
 
-    echo '<br><br>';*/
+    echo '<b>Items: </b><br>';
+    print_r((new LogParser($logfile, 95.0, 60.0))->intervals->items);
+
+    echo '<br><br>';
 
     $time_end = microtime(true);
     $execution_time = ($time_end - $time_start);

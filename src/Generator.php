@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Failure;
-use DateTime;
+
+use Exception;
+
 
 class Generator
 {
@@ -9,12 +13,13 @@ class Generator
     public function __construct(string $filename, int $count, int $errors)
     {
         //a - end, w - rewrite
-        $handle = fopen($filename, "w") or die("Файл не найден");
+        if (!$handle = fopen($filename, "w"))
+            throw new Exception('Файл не найден');
+
         $timestart = rand(time() - (7 * 24 * 60 * 60), time());
 
         if ($handle) {
-            for ($i = 0; $i < $count; $i++) 
-            {
+            for ($i = 0; $i < $count; $i++) {
                 $status = 200;
                 $type = 'GET';
 
@@ -34,8 +39,7 @@ class Generator
                 $log .= PHP_EOL;
 
                 if (fwrite($handle, $log) === FALSE) {
-                    echo "Не могу произвести запись в файл ($filename)";
-                    exit;
+                    throw new Exception('Не могу произвести запись в файл');
                 }
             }
             fclose($handle);

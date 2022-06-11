@@ -24,7 +24,6 @@ services:
         container_name: fault
         restart: always
         volumes:
-            - ./:/var/www/html/
             - ./log/nginx:/var/log/nginx
         networks:
             - backend

@@ -2,7 +2,8 @@ FROM php:7.4.16-fpm
 LABEL maintainer="Sergey Snopko"
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY . .
+
+COPY . ./
 
 ENV XDEBUG_MODE=coverage
 

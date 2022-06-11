@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 use Failure\LogParser;
 use Failure\Generator;
+use PHPUnit\TextUI\TestFileNotFoundException;
 
 class LoggerTest extends TestCase
 {
@@ -33,10 +34,19 @@ class LoggerTest extends TestCase
     
     public function testClassConstructor()
     {
-        $data = new LogParser($this->logfile, 100, 30);
+        $data = new LogParser($this->logfile, 100.0, 30);
+
+        $data->sort();
+
     
-        $this->assertSame(30, $data->uptime);
-        $this->assertEmpty($data->intervals);
+        $this->assertSame(100.0, $data->uptime);
+        $this->assertEmpty($data->intervals->items);
+    }
+
+    public function testNotFile()
+    {
+        $this->expectException(Exception::class);
+        new Generator('', 150, 100);
     }
 
     public function testNoAccess() 
@@ -44,21 +54,21 @@ class LoggerTest extends TestCase
         $this->assertEquals(null, $this->logs->intervals);
     }
 
-    public function testEmpty()
+   /* public function testEmpty()
     {
-        $this->assertNotEmpty($this->logs->intervals->get());
-    }
+        $this->assertNotEmpty($this->logs->intervals->items);
+    }*/
 
-    public function test()
+   /* public function test()
     {
-        $intervals = (new LogParser($this->logfile, 95, 60))->intervals->sort()->get();
+       // $intervals = (new LogParser($this->logfile, 95, 60))->intervals->sort()->get();
 
        // $this->assertEquals(200, $this->client->getStatusCode());
        
-         $this->assertNotEmpty($intervals);
+        // $this->assertNotEmpty($intervals);
 
        /* $data = json_decode($response, true);
         $this->assertArrayHasKey('start', $data);*/
-    }
+    //}
 
 }

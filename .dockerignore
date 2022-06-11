@@ -1,4 +1,14 @@
-.lock
-vendor
-.git
+/.lock
+/.vscode
+/Dockerfile
+/.dockerignore
+/docker-compose.yml
+/coverage
+/log
+/nginx
+**/vendor
+/.git
+/*.log
 **/.git
+
+

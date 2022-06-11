@@ -4,11 +4,11 @@ namespace Failure\Model;
 
 class Interval
 {
-    public $start; //H:i:s
-    public $end; //H:i:s
-    public $uptime; //0 - 100%
+    public int $start; //H:i:s
+    public int $end; //H:i:s
+    public float $uptime; //0 - 100%
 
-    function __construct(string $start, string $end, float $uptime) 
+    function __construct(int $start, int $end, float $uptime) 
     {
         $this->start = $start;
         $this->end = $end;

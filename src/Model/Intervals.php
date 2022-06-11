@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Failure\Model;
 
 class Intervals
@@ -7,16 +9,11 @@ class Intervals
     /**
      * @return array
      */
-    private array $items;
+    public array $items;
 
     public function __construct()
     {
         $this->items = [];
-    }
-
-    public function get()
-    {
-        return $this->items;
     }
 
     public function set(Intervals $items)
@@ -28,14 +25,6 @@ class Intervals
     public function add(Interval $item)
     {
         $this->items[] = $item;
-        return $this;
-    }
-
-    public function sort()
-    {
-        usort($this->items, function ($a, $b) {
-            return $a->end > $b->end;
-        });
         return $this;
     }
 }
