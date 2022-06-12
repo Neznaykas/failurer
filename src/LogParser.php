@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Failure;
 
-use DateTime;
-
 use Failure\Model\Intervals;
 use Failure\Model\Interval;
 
@@ -62,11 +60,11 @@ class LogParser
         try {
             while (($buffer = fgets($this->handle, 4096)) !== false) {
                 $buffer = explode(" ", $buffer, 11);
-
-                if (count($buffer) < 11)
+                /* for cli/tail unexpected */
+                if (count($buffer) < 10)
                     continue;
 
-                $date = DateTime::createFromFormat('[d/m/Y:H:i:s', $buffer[3])->getTimestamp();
+                $date = date_create_from_format('[d/m/Y:H:i:s', $buffer[3])->getTimestamp();
                 $request_time = $buffer[10];
                 $status = $buffer[8];
 
