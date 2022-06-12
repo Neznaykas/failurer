@@ -15,20 +15,16 @@ class GeneratorTest extends TestCase
 
     protected function tearDown(): void 
     {
-        unlink($this->logfile);
-    }
 
+    }
+ 
     public function testWrite()
     {
-        $errorHappened = true;
+        $this->expectException(\Exception::class);
+        $this->expectExceptionCode(0);
+        $this->expectExceptionMessage('Ошибка открытия файла, для записи');
 
-        try {
-            new Generator('123', 250, 50);
-        } catch (\Exception $e) {
-            $errorHappened = true;
-        }
-
-        $this->assertTrue($errorHappened);
+        (new Generator('/is-not-writeable/file', 250, 50))->run();
     }
 
     public function testGenerate()

@@ -17,12 +17,12 @@ class LogParserTest extends TestCase
         (new Generator($this->logfile, 250, 50))->run();
     }
 
-    protected function tearDown(): void 
+    protected function tearDown(): void
     {
         unlink($this->logfile);
     }
 
-    public function testInstance() 
+    public function testInstance()
     {
         $logger = $this->getMockBuilder(LogParser::class)
             ->disableOriginalConstructor()
@@ -30,7 +30,7 @@ class LogParserTest extends TestCase
 
         $this->assertInstanceOf(LogParser::class, $logger);
     }
-    
+
     public function testClassConstructor()
     {
         $data = new LogParser($this->logfile, 100.0, 30);
@@ -41,13 +41,16 @@ class LogParserTest extends TestCase
         $this->assertEmpty($data->intervals->count());
     }
 
-    /*public function testNotFile()
-    {   
-        $this->expectExceptionMessage('Filename cannot be empty');
-        new LogParser('', 100.0, 30);
-    }*/
+    public function testNotFile()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionCode(0);
+        $this->expectExceptionMessage('Не удалось открыть файл');
 
-    public function testSimpleAnalize() 
+        new LogParser('123123', 100, 30);
+    }
+
+    public function testSimpleAnalize()
     {
         $random = new LogParser($this->logfile, 100, 30);
         $result = $random->run();
@@ -56,7 +59,7 @@ class LogParserTest extends TestCase
         $this->assertTrue($result->intervals->count() > 0);
     }
 
-    public function testPrint() 
+    public function testPrint()
     {
         $logs = new LogParser($this->logfile, 100, 30);
         $data = (new Intervals())->add(new Interval(0, 2, 99.9));

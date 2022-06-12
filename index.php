@@ -26,7 +26,6 @@ if (PHP_SAPI == "cli") {
 
     try {
         (new LogParser("php://stdin", $needed_uptime, $timeout, $interval, $threaded))->run()->print();
-
     } catch (\Throwable $th) {
         echo $th->getMessage();
     }
@@ -47,11 +46,11 @@ if (file_exists($nginx_log)) {
             header("Refresh:0");
         }
     }
-    $nginx = new LogParser($nginx_log, 100, 1, 10);
+    $nginx = new LogParser($nginx_log, 100, 1, 0);
     $nginx->run();
 }
 
-(new Generator($logfile, 2000, 1))->run('a');
+(new Generator($logfile, 1000, 5, 60))->run('a');
 
 $random = new LogParser($logfile, 99.9, 60);
 $random->run();

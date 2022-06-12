@@ -20,20 +20,18 @@ class LogParser
     public int $count = 0;
     public int $errors = 0;
 
+    private $file;
+
     public function __construct(string $file, float $needed_uptime, float $timeout, int $interval = 0, $thread = false)
     {
         $this->uptime = $needed_uptime;
         $this->timeout = $timeout;
         $this->inteval = $interval;
         $this->thread = $thread;
+        $this->file = $file;
 
         if (!$thread) /* if need analitics */
             $this->intervals = new Intervals();
-
-        $this->handle = fopen($file, "r");
-
-        if (!$this->handle)
-            throw new \Exception('Не удалось открыть файл');
     }
 
     public function run()
@@ -53,19 +51,22 @@ class LogParser
         $start_date = 0;
         $errors = 0;
         $count = 0;
+        $uptime = 0;
+
+        try {
+            $this->handle = fopen($this->file, "r");
+        } catch (\Throwable $th) {
+            throw new \Exception('Не удалось открыть файл');
+        }
 
         try {
             while (($buffer = fgets($this->handle, 4096)) !== false) {
-                
                 $buffer = explode(" ", $buffer, 11);
-                //$buffer = preg_split('/ /', $buffer);
 
-                if (count($buffer) < 10)
+                if (count($buffer) < 11)
                     continue;
 
-                //$date = strtotime($buffer[3]);
                 $date = DateTime::createFromFormat('[d/m/Y:H:i:s', $buffer[3])->getTimestamp();
-                
                 $request_time = $buffer[10];
                 $status = $buffer[8];
 
@@ -97,7 +98,7 @@ class LogParser
             }
 
             if ($errors > 0) {
-                $this->analize($start_date, $date, $count, $errors);
+                $this->analize($start_date, $date, $uptime);
             }
         } finally {
             fclose($this->handle);
