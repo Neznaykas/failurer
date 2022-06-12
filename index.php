@@ -50,7 +50,7 @@ if (file_exists($nginx_log)) {
     $nginx->run();
 }
 
-(new Generator($logfile, 1000, 5, 60))->run('a');
+(new Generator($logfile, 1000, 5, 60))->run('w');
 
 $random = new LogParser($logfile, 99.9, 60);
 $random->run();
