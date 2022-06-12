@@ -9,7 +9,7 @@ class Intervals
     /**
      * @return array
      */
-    public array $items;
+    private array $items;
 
     public function __construct()
     {
@@ -22,9 +22,14 @@ class Intervals
         return $this;
     }
 
-    public function get(int $index): Interval
+    public function get(): array
     {
-        return $this->items[$index];
+        return $this->items;
+    }
+
+    public function count(): int
+    {
+        return count($this->items);
     }
 
     public function sort()

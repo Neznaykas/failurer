@@ -1,92 +1,72 @@
 <?php
 
+namespace Failure;
+
 use PHPUnit\Framework\TestCase;
 
-use Failure\LogParser;
-use Failure\Generator;
 use Failure\Model\Interval;
 use Failure\Model\Intervals;
 
 class LogParserTest extends TestCase
 {
-    private $logfile;
+    private string $logfile;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->logfile = __DIR__ . '/access.log';
-        new Generator($this->logfile, 250, 50);
+        (new Generator($this->logfile, 250, 50))->run();
     }
 
-    public function tearDown(): void 
+    protected function tearDown(): void 
     {
-        $this->logs = null;
         unlink($this->logfile);
     }
 
-    public function testProcess() 
+    public function testInstance() 
     {
-        $logger = $this->getMockBuilder(Logger::class)
+        $logger = $this->getMockBuilder(LogParser::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->assertInstanceOf(Logger::class, $logger);
-    }
-
-    public function testGenerate()
-    {
-        unlink($this->logfile);
-
-        new Generator($this->logfile, 250, 50);
-        $this->assertFileExists($this->logfile);
-    }
-
-    public function testSortIntervals()
-    {
-        $sorted = new Intervals();
-        $sorted->add(new Interval(5, 10, 10));
-        $sorted->add(new Interval(4, 9, 10));
-        $sorted->sort();
-
-        $unsort = new Intervals();
-        $unsort->add(new Interval(4, 9, 10));
-        $unsort->add(new Interval(5, 10, 10));
-
-        $this->assertIsArray($sorted->items);
-        $this->assertIsArray($unsort->items);
-        $this->assertEqualsCanonicalizing($sorted, $unsort);
+        $this->assertInstanceOf(LogParser::class, $logger);
     }
     
     public function testClassConstructor()
     {
         $data = new LogParser($this->logfile, 100.0, 30);
 
-        $this->assertNotEmpty($data);
         $this->assertSame(100.0, $data->uptime);
-        $this->assertIsArray($data->intervals->items);
+        $this->assertSame(0, $data->count);
+        $this->assertSame(0, $data->errors);
+        $this->assertEmpty($data->intervals->count());
     }
 
-    public function testNotFile()
-    {
-        try {
-            new LogParser('', 100.0, 30);
-        } catch (Exception $e) {
-            $this->assertFileDoesNotExist('Exception', $e);
-        }
-    }
+    /*public function testNotFile()
+    {   
+        $this->expectExceptionMessage('Filename cannot be empty');
+        new LogParser('', 100.0, 30);
+    }*/
 
-    public function testNoAccess() 
+    public function testSimpleAnalize() 
     {
-        $this->assertEquals(null, $this->logs->intervals);
+        $random = new LogParser($this->logfile, 100, 30);
+        $result = $random->run();
+
+        $this->assertIsArray($result->intervals->get());
+        $this->assertTrue($result->intervals->count() > 0);
     }
 
     public function testPrint() 
     {
-        $logs = new LogParser($this->logfile, 100.0, 30);
-        $data = (new Intervals())->add(new Interval(0, 2, 99.0));
-        $logs->intervals->set($data->items);
+        $logs = new LogParser($this->logfile, 100, 30);
+        $data = (new Intervals())->add(new Interval(0, 2, 99.9));
+        $logs->intervals->set($data->get());
         $logs->print();
 
-        $expected = date('H:i:s', $data->get(0)->start) . ' - ' . date('H:i:s', $data->get(0)->end) . ' | ' . number_format($data->get(0)->uptime, 1) . PHP_EOL;
+        $interval = $data->get()[0];
+
+        $expected = date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . number_format($interval->uptime, 1) . PHP_EOL;
+
         $this->expectOutputString($expected);
     }
 }

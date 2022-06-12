@@ -7,6 +7,11 @@
             "Failure\\": "src/"
         }
     },
+    "autoload-dev": {
+        "prs-4": {
+            "Failure\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "sergey.snopko",
