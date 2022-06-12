@@ -47,7 +47,7 @@ class LogParserTest extends TestCase
         $this->expectExceptionCode(0);
         $this->expectExceptionMessage('Не удалось открыть файл');
 
-        new LogParser('123123', 100, 30);
+        (new LogParser('123123', 100, 30))->run();
     }
 
     public function testSimpleAnalize()
