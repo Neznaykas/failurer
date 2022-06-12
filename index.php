@@ -39,13 +39,12 @@ $nginx_log = '/var/log/nginx/localhost.access_log';
 
 if (file_exists($nginx_log)) {
     if (filesize($nginx_log) < 12000) {
-        if (rand(1, 25) == 1) {
+        if (rand(1, 15) == 1) {
             header("HTTP/1.1 500 Internal Server Error");
             header("Refresh:0");
         } else {
             header("Refresh:0");
         }
-        die();
     }
     $nginx = new LogParser($nginx_log, 100, 1, 0);
     $nginx->run();
