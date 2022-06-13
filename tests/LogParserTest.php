@@ -14,12 +14,6 @@ class LogParserTest extends TestCase
     protected function setUp(): void
     {
         $this->logfile = __DIR__ . '/access.log';
-        (new Generator($this->logfile, 300, 70))->run();
-    }
-
-    protected function tearDown(): void
-    {
-        unlink($this->logfile);
     }
 
     public function testInstance()
@@ -73,11 +67,15 @@ class LogParserTest extends TestCase
 
     public function testSimpleAnalize()
     {
-        $random = new LogParser($this->logfile, 100, 30, 1);
+        (new Generator($this->logfile, 300, 70))->run();
+
+        $random = new LogParser($this->logfile, 100, 30, 5);
         $result = $random->run();
 
         $this->assertIsArray($result->intervals->get());
         $this->assertTrue($result->intervals->count() > 0);
+
+        unlink($this->logfile);
     }
 
     public function testPrint()
