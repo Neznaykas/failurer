@@ -59,8 +59,8 @@ class LogParser
 
         try {
             while (($buffer = fgets($this->handle, 4096)) !== false) {
-                if (!preg_match('/^(?P<ip>\d.+)\s...+\[(?P<time>[\d+\/ :]+)\s.+"(?P<type>\w+)\s\/\w.+.\s(?P<status>\d+)\s\d\s(?P<request>\d+.\d+)/', $buffer, $matches))
-                    continue;
+                if (!preg_match('/^(?P<ip>\d.+)\s...+\[(?P<time>[\d+\/ :]+)\s.+"(?P<type>\w+)\s.+"\s(?P<status>\d+).\d+\s(?P<request>\d+.\d+)/', $buffer, $matches))
+                    throw new \Exception('Некоректный формат лог файла');
 
                 /* all, ip, date/time, type request, status, request time*/
                 list(,,$date,,$status, $request) = $matches;
