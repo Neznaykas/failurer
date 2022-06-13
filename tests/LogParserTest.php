@@ -14,7 +14,7 @@ class LogParserTest extends TestCase
     protected function setUp(): void
     {
         $this->logfile = __DIR__ . '/access.log';
-        (new Generator($this->logfile, 250, 50))->run();
+        (new Generator($this->logfile, 300, 70))->run();
     }
 
     protected function tearDown(): void
@@ -50,9 +50,30 @@ class LogParserTest extends TestCase
         (new LogParser('123123', 100, 30))->run();
     }
 
+    public function testWrongLogFormat()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Некоректный формат лог файла');
+        
+        $truncated = '187.69.247.82 - - [10/06/2022:04:51:39 +1000] "PUT /rest/v1.4/documents?zone=default&_rid=e356713 HTTP/1.1" 200 2 40.0000 "-" "@list-item-updater" prio:0
+        107.55.12.134 - - [10/06/2022:04:52:35 +1000] "POST /rest/v1.4/documents?zone=default&_rid=e356713 HTTP/1.1" 200 2 28.0000 "-" "@list-item-updater" prio:0
+        118.228.37.131 - - "POST /rest/v1.4/documents?zone=default&_rid=e356713 HTTP/1.1" 2 24.0000';
+
+        $file = __DIR__ . '/test.log';
+        file_put_contents($file, $truncated);
+        $random = new LogParser($file, 100, 20);
+
+        try {
+           $random->run();
+        } finally {
+            unlink($file);
+        }
+    }
+
+
     public function testSimpleAnalize()
     {
-        $random = new LogParser($this->logfile, 100, 30);
+        $random = new LogParser($this->logfile, 100, 30, 1);
         $result = $random->run();
 
         $this->assertIsArray($result->intervals->get());
