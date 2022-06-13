@@ -59,16 +59,15 @@ class LogParser
 
         try {
             while (($buffer = fgets($this->handle, 4096)) !== false) {
-                $buffer = explode(" ", $buffer, 11);
-                /* for cli/tail unexpected */
-                if (count($buffer) < 10)
+                if (!preg_match('/^(?P<ip>\d.+)\s...+\[(?P<time>[\d+\/ :]+)\s.+"(?P<type>\w+)\s\/\w.+.\s(?P<status>\d+)\s\d\s(?P<request>\d+.\d+)/', $buffer, $matches))
                     continue;
 
-                $date = date_create_from_format('[d/m/Y:H:i:s', $buffer[3])->getTimestamp();
-                $request_time = $buffer[10];
-                $status = $buffer[8];
+                /* all, ip, date/time, type request, status, request time*/
+                list(,,$date,,$status, $request) = $matches;
+                
+                $date = date_create_from_format('d/m/Y:H:i:s', $date)->getTimestamp();
 
-                if (($status > 499 && $status < 600) || $request_time >= $this->timeout) {
+                if (($status > 499 && $status < 600) || $request >= $this->timeout) {
                     $errors++;
                     $this->errors++;
 
@@ -92,7 +91,7 @@ class LogParser
                     $count++;
 
                 $this->count++;
-                unset($buffer);
+                unset($buffer, $matches);
             }
 
             if ($errors > 0) {
