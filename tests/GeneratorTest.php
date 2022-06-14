@@ -13,11 +13,6 @@ class GeneratorTest extends TestCase
         $this->logfile = __DIR__ . '/access.log';
     }
 
-    protected function tearDown(): void 
-    {
-
-    }
- 
     public function testWrite()
     {
         $this->expectException(\Exception::class);
@@ -30,7 +25,7 @@ class GeneratorTest extends TestCase
     public function testGenerate()
     {
         (new Generator($this->logfile, 250, 50))->run();
-        
+
         $buffer = __DIR__ . '/access1.log';
         (new Generator($buffer, 250, 50))->run();
 
