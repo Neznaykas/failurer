@@ -35,7 +35,7 @@ class Intervals
     public function sort()
     {
         usort($this->items, function ($a, $b) {
-            return $a->start > $b->start;
+            return $a->start <=> $b->start;
         });
         return $this;
     }
