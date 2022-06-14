@@ -6,9 +6,6 @@ namespace Failure\Model;
 
 class Intervals
 {
-    /**
-     * @return array
-     */
     private array $items;
 
     public function __construct()
@@ -22,6 +19,9 @@ class Intervals
         return $this;
     }
 
+    /**
+     * @return Interval[]
+     */
     public function get(): array
     {
         return $this->items;

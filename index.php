@@ -25,7 +25,7 @@ if (PHP_SAPI == "cli") {
     $threaded = isset($options['d']) ?? true;
 
     try {
-        (new LogParser("php://stdin", $needed_uptime, $timeout, $interval, $threaded))->run()->print();
+        (new LogParser("php://stdin", $needed_uptime, $timeout, $interval, $threaded))->run();
     } catch (\Throwable $th) {
         echo $th->getMessage();
     }
@@ -46,13 +46,14 @@ if (file_exists($nginx_log)) {
             header("Refresh:0");
         }
     }
-    $nginx = new LogParser($nginx_log, 100, 1, 0);
-    $nginx->run();
+    $nginx = new LogParser($nginx_log, 100, 1, 5, false, false, '<br>');
 }
 
+/* You can use run('a') - refresh localhost and see intervals in cli and command tail */
 (new Generator($logfile, 1000, 5, 60))->run('w');
 
-$random = new LogParser($logfile, 99.9, 60);
+/* if need intervals analytics */
+$random = new LogParser($logfile, 99.9, 60, 0, false, true);
 $random->run();
 
 $time_end = microtime(true);
@@ -72,22 +73,35 @@ $execution_time = ($time_end - $time_start);
         <section class="row">
             <?php if (isset($nginx)) : ?>
                 <div class="col">
-                    <b>Nginx analyze: </b><br>
-                    <p>Count: <?= $nginx->count ?> Errors: <?= $nginx->errors ?> Intervals: <?= $nginx->intervals->count() ?></p>
+                    <p><b>Nginx analyze: </b> (no save to memory) </p>
                     <hr>
-                    <?php $nginx->print('<br>') ?>
+                        <?php $nginx->run(); ?>
                     <hr>
+                    <p>Count: <?= $nginx->count ?> Errors: <?= $nginx->errors ?></p>
                 </div>
             <?php endif; ?>
             <div class="col">
-                <b>Random generate analyze: </b><br>
-                <p>Count: <?= $random->count ?> Errors: <?= $random->errors ?> Intervals: <?= $random->intervals->count() ?></p>
+                <b>Random generate analyze: </b>
                 <hr>
-                <?= $random->print('<br>') ?>
+                <?php
+                    foreach ($random->intervals()->get() as $interval) {
+
+                        $diff = date('i:s', abs($interval->end - $interval->start));
+
+                        $startdate = date('H:i:s', $interval->start);
+                        $enddate = date('H:i:s', $interval->end);
+                        $uptime = number_format($interval->uptime, 1);
+
+                        echo "{$startdate} - {$enddate} | {$uptime}% - {$diff}<br>";
+                    }
+                ?>
+                <hr>
+                <p>Count: <?= $random->count ?> Errors: <?= $random->errors ?> Intervals: <?= $random->intervals()->count() ?></p>
                 <hr>
                 <p><b>Total Execution Time: </b><?= $execution_time ?></p>
                 <br><br>
             </div>
+            <canvas id="radarChart"></canvas>
         </section>
     </main>
 </body>

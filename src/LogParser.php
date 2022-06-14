@@ -10,26 +10,30 @@ use Failure\Model\Interval;
 class LogParser
 {
     private $handle;
+    private string $filename;
     public float $uptime;
     private float $timeout;
     private int $inteval;
     private bool $thread;
-    public Intervals $intervals;
+    private bool $savetomemory;
+    private string $out_delimetr;
+    private Intervals $intervals;
     public int $count = 0;
     public int $errors = 0;
 
-    private $file;
-
-    public function __construct(string $file, float $needed_uptime, float $timeout, int $interval = 0, $thread = false)
+    public function __construct(string $filename, float $needed_uptime, float $timeout, int $interval = 0, $thread = false, $savetomemory = false, $out_delimetr = PHP_EOL)
     {
+        $this->filename = $filename;
         $this->uptime = $needed_uptime;
         $this->timeout = $timeout;
         $this->inteval = $interval;
         $this->thread = $thread;
-        $this->file = $file;
+        $this->savetomemory = $savetomemory;
+        $this->out_delimetr = $out_delimetr;
+        $this->intervals = new Intervals();
 
-        if (!$thread) /* if need analitics */
-            $this->intervals = new Intervals();
+        if ($thread && $savetomemory)
+            trigger_error("Использование потоковой обработки с сохранением в память может вызвать недостаток памяти", E_USER_WARNING);
     }
 
     public function run()
@@ -44,6 +48,14 @@ class LogParser
         return $this;
     }
 
+    /**
+     * @return Intervals
+     */
+    public function intervals()
+    {
+        return $this->intervals;
+    }
+
     private function parse()
     {
         $start_date = 0;
@@ -52,7 +64,7 @@ class LogParser
         $uptime = 0;
 
         try {
-            $this->handle = fopen($this->file, "r");
+            $this->handle = fopen($this->filename, "r");
         } catch (\Throwable $th) {
             throw new \Exception('Не удалось открыть файл');
         }
@@ -60,11 +72,11 @@ class LogParser
         try {
             while (($buffer = fgets($this->handle, 4096)) !== false) {
                 if (!preg_match('/^(?P<ip>\d.+)\s...+\[(?P<time>[\d+\/ :]+)\s.+"(?P<type>\w+)\s.+"\s(?P<status>\d+).\d+\s(?P<request>\d+.\d+)/', $buffer, $matches))
-                    throw new \Exception('Некоректный формат лог файла');
+                    throw new \Exception('Некоректный формат лог файла: ' . $buffer);
 
                 /* all, ip, date/time, type request, status, request time*/
-                list(,,$date,,$status, $request) = $matches;
-                
+                list(,, $date,, $status, $request) = $matches;
+
                 $date = date_create_from_format('d/m/Y:H:i:s', $date)->getTimestamp();
 
                 if (($status > 499 && $status < 600) || $request >= $this->timeout) {
@@ -106,20 +118,17 @@ class LogParser
     private function analize($start, $end, $uptime)
     {
         if ($uptime <= $this->uptime && abs($end - $start) > (60 * $this->inteval)) {
-            if ($this->thread)
-                echo date('H:i:s', $start) . ' - ' . date('H:i:s', $end) . ' | ' . number_format($uptime, 1) . PHP_EOL;
-            else
+            if ($this->savetomemory)
                 $this->intervals->add(new Interval($start, $end, $uptime));
+            else {
+                $startdate = date('H:i:s', $start);
+                $enddate = date('H:i:s', $end);
+                $uptime = number_format($uptime, 1);
 
+                echo "{$startdate} - {$enddate} | {$uptime}{$this->out_delimetr}";
+            }
             return true;
         }
         return false;
-    }
-
-    public function print(string $delimetr = PHP_EOL)
-    {
-        foreach ($this->intervals->get() as $interval) {
-            echo date('H:i:s', $interval->start) . ' - ' . date('H:i:s', $interval->end) . ' | ' . number_format($interval->uptime, 1) . $delimetr;
-        }
     }
 }
