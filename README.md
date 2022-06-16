@@ -7,8 +7,6 @@
 <p><code>cat access.log | php index.php -u 99.9 -t 45</code></p>
 <p><code>tail -f access.log | php index.php -u 99.9 -t 60 -i 0 -d</code></p>
 
-tail access.log | php index.php -u 99.9 -t 60 -i 0 -d
-
 * -u = needed up time 
 * -t = timeout
 * -i = min size interval in minutes
