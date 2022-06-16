@@ -75,7 +75,7 @@ $execution_time = ($time_end - $time_start);
                 <div class="col">
                     <p><b>Nginx analyze: </b> (no save to memory) </p>
                     <hr>
-                        <?php $nginx->run(); ?>
+                    <?php $nginx->run(); ?>
                     <hr>
                     <p>Count: <?= $nginx->count ?> Errors: <?= $nginx->errors ?></p>
                 </div>
@@ -84,16 +84,16 @@ $execution_time = ($time_end - $time_start);
                 <b>Random generate analyze: </b>
                 <hr>
                 <?php
-                    foreach ($random->intervals()->get() as $interval) {
+                foreach ($random->intervals()->get() as $interval) {
 
-                        $diff = date('i:s', abs($interval->end - $interval->start));
+                    $diff = date('i:s', abs($interval->end - $interval->start));
 
-                        $startdate = date('H:i:s', $interval->start);
-                        $enddate = date('H:i:s', $interval->end);
-                        $uptime = number_format($interval->uptime, 1);
+                    $startdate = date('H:i:s', $interval->start);
+                    $enddate = date('H:i:s', $interval->end);
+                    $uptime = number_format($interval->uptime, 1);
 
-                        echo "{$startdate} - {$enddate} | {$uptime}% - {$diff}<br>";
-                    }
+                    echo "{$startdate} - {$enddate} | {$uptime}% - {$diff}<br>";
+                }
                 ?>
                 <hr>
                 <p>Count: <?= $random->count ?> Errors: <?= $random->errors ?> Intervals: <?= $random->intervals()->count() ?></p>

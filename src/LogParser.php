@@ -21,7 +21,7 @@ class LogParser
     public int $count = 0;
     public int $errors = 0;
 
-    public function __construct(string $filename, float $needed_uptime, float $timeout, int $interval = 0, $thread = false, $savetomemory = false, $out_delimetr = PHP_EOL)
+    public function __construct(string $filename, float $needed_uptime, float $timeout, int $interval = 0, bool $thread = false, bool $savetomemory = false, string $out_delimetr = PHP_EOL)
     {
         $this->filename = $filename;
         $this->uptime = $needed_uptime;
@@ -62,6 +62,7 @@ class LogParser
         $errors = 0;
         $count = 0;
         $uptime = 0;
+        $date = 0;
 
         try {
             $this->handle = fopen($this->filename, "r");
@@ -115,7 +116,7 @@ class LogParser
         return $this;
     }
 
-    private function analize($start, $end, $uptime)
+    private function analize(int $start, int $end, float $uptime)
     {
         if ($uptime <= $this->uptime && abs($end - $start) > (60 * $this->inteval)) {
             if ($this->savetomemory)

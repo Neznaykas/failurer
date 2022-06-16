@@ -47,6 +47,7 @@ class LogParserTest extends TestCase
     public function testWrongLogFormat()
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionCode(0);
         $this->expectExceptionMessage('Некоректный формат лог файла');
 
         $truncated = '187.69.247.82 - - [10/06/2022:04:51:39 +1000] "PUT /rest/v1.4/documents?zone=default&_rid=e356713 HTTP/1.1" 200 2 40.0000 "-" "@list-item-updater" prio:0
@@ -66,7 +67,7 @@ class LogParserTest extends TestCase
 
     public function testOutOfMemoryMessage()
     {
-        $this->expectWarning(E_USER_WARNING);
+        $this->expectWarning();
         $this->expectWarningMessage('Использование потоковой обработки с сохранением в память может вызвать недостаток памяти');
 
         new LogParser($this->logfile, 100, 30, 5, true, true);

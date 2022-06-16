@@ -13,7 +13,7 @@ class Generator
     private $handle;
 
     /* Simple generate logs - for tests */
-    public function __construct(string $filename, int $count, int $errors, $maxtime = 100)
+    public function __construct(string $filename, int $count, int $errors, int $maxtime = 100)
     {
         $this->filename = $filename;
         $this->count = $count;
@@ -70,5 +70,6 @@ class Generator
         } finally {
             fclose($this->handle);
         }
+        return $this;
     }
 }
