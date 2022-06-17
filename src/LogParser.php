@@ -77,8 +77,10 @@ class LogParser
 
                 /* all, ip, date/time, type request, status, request time*/
                 list(,, $date,, $status, $request) = $matches;
-
                 $date = date_create_from_format('d/m/Y:H:i:s', $date)->getTimestamp();
+
+                if ($count > 0)
+                    $count++;
 
                 if (($status > 499 && $status < 600) || $request >= $this->timeout) {
                     $errors++;
@@ -87,7 +89,7 @@ class LogParser
                     if ($start_date == 0)
                         $start_date = $date;
 
-                    if ($count == 0) {
+                    if ($count === 0) {
                         $count++;
                     } else {
                         $uptime = (($count - $errors) * 100) / $count;
@@ -99,9 +101,6 @@ class LogParser
                         }
                     }
                 }
-
-                if ($count > 0)
-                    $count++;
 
                 $this->count++;
                 unset($buffer, $matches);
