@@ -10,28 +10,6 @@ use Failure\Generator;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-/* Console mod */
-if (PHP_SAPI == "cli") {
-
-    $needed_uptime = 100;
-    $timeout = 100;
-    $interval = 0;
-    $threaded = false;
-    $options = getopt("t:u:i:d");
-
-    $needed_uptime = floatval($options['u']);
-    $timeout = floatval($options['t']);
-    $interval = intval($options['i']);
-    $threaded = isset($options['d']) ?? true;
-
-    try {
-        (new LogParser("php://stdin", $needed_uptime, $timeout, $interval, $threaded))->run();
-    } catch (\Throwable $th) {
-        echo $th->getMessage();
-    }
-
-    die();
-}
 /* Interactive */
 $time_start = microtime(true);
 $logfile = __DIR__ . '/access.log';
@@ -101,7 +79,6 @@ $execution_time = ($time_end - $time_start);
                 <p><b>Total Execution Time: </b><?= $execution_time ?></p>
                 <br><br>
             </div>
-            <canvas id="radarChart"></canvas>
         </section>
     </main>
 </body>
