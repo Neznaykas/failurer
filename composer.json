@@ -8,7 +8,7 @@
         }
     },
     "autoload-dev": {
-        "prs-4": {
+        "psr-4": {
             "Failure\\Tests\\": "tests/"
         }
     },
