@@ -37,14 +37,11 @@ class LogParser
     }
 
     public function run()
-    {
-        if ($this->thread) {
-            while (true) {
-                $this->parse();
-            }
-        } else {
+    {        
+        do {
             $this->parse();
-        }
+        } while ($this->thread);
+        
         return $this;
     }
 
